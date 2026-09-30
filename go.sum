@@ -4,3 +4,5 @@ github.com/Tyy47/clibox v0.0.7-0.20260918130909-519160c1c5c3 h1:e4yU36P2okadu+sR
 github.com/Tyy47/clibox v0.0.7-0.20260918130909-519160c1c5c3/go.mod h1:vDEObuW0A89sBrkIMY21l8yAABE2UFc6SHGFfo/T7Hk=
 github.com/Tyy47/clibox v0.0.7-0.20260918172700-03e8c41c5e3d h1:/ndFEwGYilT4OK2WZqRDF9D1SFLrXlctYzdPISK3ptk=
 github.com/Tyy47/clibox v0.0.7-0.20260918172700-03e8c41c5e3d/go.mod h1:vDEObuW0A89sBrkIMY21l8yAABE2UFc6SHGFfo/T7Hk=
+github.com/Tyy47/clibox v0.0.7 h1:m1bTy3WHFuAWVHl115hR1ZBQfmvS2EmV1BSZhfCXS8U=
+github.com/Tyy47/clibox v0.0.7/go.mod h1:vDEObuW0A89sBrkIMY21l8yAABE2UFc6SHGFfo/T7Hk=
