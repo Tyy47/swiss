@@ -4,13 +4,15 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Tyy47/clibox/argbin"
-	"github.com/Tyy47/clibox/colorbin"
 	"swiss/build"
 	"swiss/gen"
 	"swiss/initialize"
+	"swiss/replace"
 	"swiss/shortcuts"
 	"swiss/utils"
+
+	"github.com/Tyy47/clibox/argbin"
+	"github.com/Tyy47/clibox/colorbin"
 )
 
 // Creating the root object of the application
@@ -78,6 +80,7 @@ func main() {
 		gen.GenerateCommand(),
 		initialize.InitCommand(),
 		shortcuts.ShortcutCommand(),
+		replace.ReplaceCommand(),
 	}
 
 	// Adds all commands to app
