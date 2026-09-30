@@ -165,3 +165,9 @@ func ToggleOutputForCMD(cmd *exec.Cmd) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 }
+
+// OpenFile opens a file based on the string given as the file name. Returns the opened file and an error.
+func OpenFile(file string) (*os.File, error) {
+	opened, err := os.Open(file)
+	return opened, err
+}
