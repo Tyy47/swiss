@@ -52,6 +52,7 @@ func getFileContents(info *FileInfo) ([]byte, error) {
 
 func replaceFileContents(content []byte, info *FileInfo) error {
 	
+	// Search closure to grab a stringed, trimmed content array
 	search := func() []string {
 
 		x := strings.Split(string(content), info.Seperator)
@@ -65,24 +66,62 @@ func replaceFileContents(content []byte, info *FileInfo) error {
 		return x
 	}()
 
+	// Error check to see if it's an empty file
 	if len(search) == 0 {
 		return fmt.Errorf("%s is an empty file.", info.Name)
 	}
 
+	// Replacement list to switch changed words
 	replaceList := search
+
+	// Counter to count string changes in a file
 	var changeCounter int
 
+	// Loop over the stringed search array
 	for i, single := range search {
-		if changeCounter == info.Count {
-			break
+
+		// If the change counter meets the Count in fileinfo, then it breaks out of the loop
+		if info.Count != 0 {
+			if changeCounter == info.Count {
+				break
+			}
 		}
 
-		if single == info.TargetWord {
+		// If the target word is found, it is changed and the change counter is incremented
+		if single == info.TargetWord || strings.Contains(single, info.TargetWord) {
+			punc := func() string {
+				// All available punctuation
+				puncList := []string{
+					".", ",", ";", ":", "{", "[", "]", "}",
+					"!", "@", "#", "$", "%", "^", "&", "*",
+					"-", "--", "_", "__", "+", "=", "/", "\\",
+					"//", "`", "~",
+				}
+
+				// Search the string to see if it has punctuation
+				for _, suffix := range puncList {
+					if strings.HasSuffix(single, suffix) {
+						return suffix
+					}
+				}
+
+				return ""
+			}()
+
+			// Punctuation nil check
+			if punc != "" {
+				replaceList[i] = info.Replacement + punc
+				changeCounter += 1
+				continue
+			}
+
+			// Replace word in array
 			replaceList[i] = info.Replacement
 			changeCounter += 1
 		}
 	}
 
+	// byteArray closure to convert the string array back into bytes
 	byteArray := func(stringArray []string) []byte {
 		newString := strings.Join(stringArray, " ") + "\n"
 
@@ -91,7 +130,7 @@ func replaceFileContents(content []byte, info *FileInfo) error {
 		return bytes
 	}(replaceList)
 
-
+	// Write the byteArray to the file to replace
 	if err := os.WriteFile(info.Name, byteArray, 0755); err != nil {
 		return fmt.Errorf("Unable to write to file %s due to error %w", info.Name, err)
 	}
@@ -103,6 +142,7 @@ func findStringFlag() *argbin.Flag {
 	return &argbin.Flag{
 		TakesValue: true,
 		Execute: func(ctx *argbin.Context) error {
+			// Assign parsed flag value to command context
 			ctx.Values["with"] = ctx.ParsedFlagValue
 			return nil
 		},
@@ -120,6 +160,7 @@ func replaceAmountFlag() *argbin.Flag {
 				return fmt.Errorf("unable to convert %s to an int", ctx.ParsedValue)
 			}
 
+			// Add amount value to command context
 			ctx.Values["amount"] = convert
 			return nil
 		},
