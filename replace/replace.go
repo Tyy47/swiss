@@ -70,14 +70,16 @@ func replaceFileContents(content []byte, info *FileInfo) error {
 	}
 
 	replaceList := search
+	var changeCounter int
 
 	for i, single := range search {
-		if i == info.Count {
+		if changeCounter == info.Count {
 			break
 		}
 
 		if single == info.TargetWord {
 			replaceList[i] = info.Replacement
+			changeCounter += 1
 		}
 	}
 
@@ -149,9 +151,11 @@ func ReplaceCommand() *argbin.Command {
 				return err
 			}
 
+			// Get file contents
 			content, err := getFileContents(info)
 			if err != nil { return err }
 
+			// Replace file contents with replacement word
 			replaceFileContents(content, info)
 
 			return nil
