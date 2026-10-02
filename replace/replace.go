@@ -35,7 +35,7 @@ func (fi *FileInfo) AssignValues(ctx *argbin.Context) error {
 	if ok {
 		fi.Count = count
 	}
-	
+
 	// Assigning a name to file fi
 	fi.Name = name
 	fi.TargetWord = ctx.ParsedValue
@@ -72,6 +72,10 @@ func replaceFileContents(content []byte, info *FileInfo) error {
 	replaceList := search
 
 	for i, single := range search {
+		if i == info.Count {
+			break
+		}
+
 		if single == info.TargetWord {
 			replaceList[i] = info.Replacement
 		}
@@ -109,7 +113,7 @@ func replaceAmountFlag() *argbin.Flag {
 		Execute: func(ctx *argbin.Context) error {
 	
 			// Convert user input into a int
-			convert, err := strconv.Atoi(ctx.ParsedValue)
+			convert, err := strconv.Atoi(strings.TrimSpace(ctx.ParsedFlagValue))
 			if err != nil {
 				return fmt.Errorf("unable to convert %s to an int", ctx.ParsedValue)
 			}
