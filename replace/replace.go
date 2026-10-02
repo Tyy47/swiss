@@ -11,6 +11,7 @@ import (
 
 type FileInfo struct {
 	Name string
+	TargetWord string
 	Replacement string
 	Seperator string
 	Count int
@@ -37,6 +38,7 @@ func (fi *FileInfo) AssignValues(ctx *argbin.Context) error {
 	
 	// Assigning a name to file fi
 	fi.Name = name
+	fi.TargetWord = ctx.ParsedValue
 	fi.Replacement = replace
 	fi.Seperator = " "
 
@@ -48,9 +50,48 @@ func getFileContents(info *FileInfo) ([]byte, error) {
 	return file, err
 }
 
-func searchFileContents(content []byte, info *FileInfo) ([]int, error) {
-}
+func replaceFileContents(content []byte, info *FileInfo) error {
+	
+	search := func() []string {
 
+		x := strings.Split(string(content), info.Seperator)
+
+		strings.Split(string(content), info.Seperator)
+
+		for i, single := range x {
+			x[i] = strings.TrimSpace(single)
+		}
+
+		return x
+	}()
+
+	if len(search) == 0 {
+		return fmt.Errorf("%s is an empty file.", info.Name)
+	}
+
+	replaceList := search
+
+	for i, single := range search {
+		if single == info.TargetWord {
+			replaceList[i] = info.Replacement
+		}
+	}
+
+	byteArray := func(stringArray []string) []byte {
+		newString := strings.Join(stringArray, " ") + "\n"
+
+		bytes := []byte(newString)
+
+		return bytes
+	}(replaceList)
+
+
+	if err := os.WriteFile(info.Name, byteArray, 0755); err != nil {
+		return fmt.Errorf("Unable to write to file %s due to error %w", info.Name, err)
+	}
+
+	return nil
+}
 
 func findStringFlag() *argbin.Flag {
 	return &argbin.Flag{
@@ -106,6 +147,8 @@ func ReplaceCommand() *argbin.Command {
 
 			content, err := getFileContents(info)
 			if err != nil { return err }
+
+			replaceFileContents(content, info)
 
 			return nil
 		},
