@@ -88,35 +88,36 @@ func replaceFileContents(content []byte, info *FileInfo) error {
 		}
 
 		// If the target word is found, it is changed and the change counter is incremented
-		if single == info.TargetWord || strings.Contains(single, info.TargetWord) {
-			punc := func() string {
+		if info.TargetWord == single {
+			trimmedString := single[:len(info.TargetWord)]
+
+			punc := func(s string) string {
 				// All available punctuation
 				puncList := []string{
-					".", ",", ";", ":", "{", "[", "]", "}",
+					".", ",", ";", ":", "{", "[", "]", `}`,
 					"!", "@", "#", "$", "%", "^", "&", "*",
-					"-", "--", "_", "__", "+", "=", "/", "\\",
-					"//", "`", "~",
+					"-", "--", "_", "__", "+", "=", "`", "~",
 				}
 
 				// Search the string to see if it has punctuation
 				for _, suffix := range puncList {
-					if strings.HasSuffix(single, suffix) {
+					if strings.HasSuffix(s, suffix) {
 						return suffix
 					}
 				}
 
 				return ""
-			}()
+			}(trimmedString)
 
 			// Punctuation nil check
 			if punc != "" {
-				replaceList[i] = info.Replacement + punc
+				replaceList[i] = trimmedString + punc
 				changeCounter += 1
 				continue
 			}
 
 			// Replace word in array
-			replaceList[i] = info.Replacement
+			replaceList[i] = trimmedString
 			changeCounter += 1
 		}
 	}
