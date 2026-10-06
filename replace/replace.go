@@ -10,11 +10,11 @@ import (
 )
 
 type FileInfo struct {
-	Name string
-	TargetWord string
+	Name        string
+	TargetWord  string
 	Replacement string
-	Seperator string
-	Count int
+	Seperator   string
+	Count       int
 }
 
 func (fi *FileInfo) AssignValues(ctx *argbin.Context) error {
@@ -51,7 +51,7 @@ func getFileContents(info *FileInfo) ([]byte, error) {
 }
 
 func replaceFileContents(content []byte, info *FileInfo) error {
-	
+
 	// Search closure to grab a stringed, trimmed content array
 	search := func() []string {
 
@@ -89,7 +89,7 @@ func replaceFileContents(content []byte, info *FileInfo) error {
 
 		// If the target word is found, it is changed and the change counter is incremented
 		if info.TargetWord == single {
-			trimmedString := single[:len(info.TargetWord)]
+			trimmedString := strings.Trim(info.Replacement, "")
 
 			punc := func(s string) string {
 				// All available punctuation
@@ -154,7 +154,7 @@ func replaceAmountFlag() *argbin.Flag {
 	return &argbin.Flag{
 		TakesValue: true,
 		Execute: func(ctx *argbin.Context) error {
-	
+
 			// Convert user input into a int
 			convert, err := strconv.Atoi(strings.TrimSpace(ctx.ParsedFlagValue))
 			if err != nil {
@@ -181,10 +181,10 @@ func getFileNameFlag() *argbin.Flag {
 
 func ReplaceCommand() *argbin.Command {
 	return &argbin.Command{
-		Name: "replace",
+		Name:       "replace",
 		TakesValue: true,
 		Execute: func(ctx *argbin.Context) error {
-			
+
 			// Init file info
 			info := &FileInfo{}
 
@@ -195,20 +195,24 @@ func ReplaceCommand() *argbin.Command {
 
 			// Get file contents
 			content, err := getFileContents(info)
-			if err != nil { return err }
+			if err != nil {
+				return err
+			}
 
 			// Replace file contents with replacement word
-			replaceFileContents(content, info)
+			if err := replaceFileContents(content, info); err != nil {
+				return err
+			}
 
 			return nil
 		},
 		Flags: argbin.Flags{
-			"-a": replaceAmountFlag(),
+			"-a":       replaceAmountFlag(),
 			"--amount": replaceAmountFlag(),
-			"-w": findStringFlag(),
-			"--with": findStringFlag(),
-			"-f": getFileNameFlag(),
-			"--file": getFileNameFlag(),
+			"-w":       findStringFlag(),
+			"--with":   findStringFlag(),
+			"-f":       getFileNameFlag(),
+			"--file":   getFileNameFlag(),
 		},
 	}
 }
