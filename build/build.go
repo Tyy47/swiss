@@ -304,7 +304,13 @@ func BuildCommand() *argbin.Command {
 				if err != nil {
 					return err
 				}
-				title = string(ctx.Values["language"].(Language))
+
+				temp, ok := ctx.Values["language"].(Language)
+				if !ok {
+					return fmt.Errorf("swiss doesn't support this language.")
+				}
+				title = string(temp)
+				
 			} else {
 				b, err = getLanguage(ctx.ParsedValue)
 				if err != nil {
@@ -360,7 +366,13 @@ func RunCommand() *argbin.Command {
 				if err != nil {
 					return err
 				}
-				title = string(ctx.Values["language"].(Language))
+
+				temp, ok := ctx.Values["language"].(Language)
+				if !ok {
+					return fmt.Errorf("swiss doesn't support this language.")
+				}
+				title = string(temp)
+
 			} else {
 				r, err = getLanguage(ctx.ParsedValue)
 				if err != nil {
