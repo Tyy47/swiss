@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	"swiss/utils"
+
 	"github.com/Tyy47/clibox/argbin"
 )
 
@@ -192,6 +194,7 @@ func getFileNameFlag() *argbin.Flag {
 	}
 }
 
+
 func ReplaceCommand() *argbin.Command {
 	return &argbin.Command{
 		Name:       "replace",
@@ -221,10 +224,28 @@ func ReplaceCommand() *argbin.Command {
 		Flags: argbin.Flags{
 			"-a":       replaceAmountFlag(),
 			"--amount": replaceAmountFlag(),
-			"-w":       findStringFlag(),
-			"--with":   findStringFlag(),
 			"-f":       getFileNameFlag(),
 			"--file":   getFileNameFlag(),
+			"-h":     utils.HelpFlag(),
+			"--help": utils.HelpFlag(),
+			"-w":       findStringFlag(),
+			"--with":   findStringFlag(),
 		},
+		HelpMenu: `
+╭───────────────────  Swiss  ────────────────────╮
+│                                                │
+│       The army knife of CLI applications       │
+│                                                │
+╰────────────────────────────────────────────────╯
+Replace module - Replace words in a file via Swiss.
+
+Commands:
+	replace <word>: replaces a word with the value given
+
+Flags:
+	-a --amount: Specify an amount of times a word should be replaced.
+	-f --file: Location to the file.
+	-h --help: Opens the help menu.
+	-w --with: The word your using as the replacement.`,
 	}
 }

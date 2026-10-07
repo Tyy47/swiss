@@ -30,11 +30,12 @@ var root = argbin.Root{
 usage: swiss [command] [additional_arguments] <flags>
 
 Commands:
-	build: Builds a program that uses swiss made shortcuts.
-	run: Runs a program that uses swiss made shortcuts.
+	build: Builds a program with a native build tool and swiss as a shorthand wrapper.
+	run: Runs a program with a native build tool and swiss as a shorthand wrapper.
 	init: Initializes a programming based project in current folder.
 	gen: Generates different codes that are most commonly used in development
 	sc: Command shortcuts for various CLI utilities to make development faster
+	replace: Replaces words in a file.
 
 Flags:
 	-h, --help: Displays the swiss help menu
