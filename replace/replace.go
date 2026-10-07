@@ -9,14 +9,25 @@ import (
 	"github.com/Tyy47/clibox/argbin"
 )
 
+// FileInfo stores all the needed information to replace words in a file
 type FileInfo struct {
-	Name        string
-	TargetWord  string
+	// Stores the file name
+	Name string
+
+	// TargetWord stores the users word they want to replace
+	TargetWord string
+
+	// Replacement is the word that replace TargetWord
 	Replacement string
-	Seperator   string
-	Count       int
+
+	// Seperator adds a space between each entry
+	Seperator string
+
+	// Count is the amount that can be manually set to only replace a certain amount of words
+	Count int
 }
 
+// AssignValues builds all needed FileInfo members and returns an error if any value cannot be retrieved.
 func (fi *FileInfo) AssignValues(ctx *argbin.Context) error {
 	// Grab file name from command context
 	name, ok := ctx.Values["file_name"].(string)
@@ -45,40 +56,41 @@ func (fi *FileInfo) AssignValues(ctx *argbin.Context) error {
 	return nil
 }
 
+// getFileContents reads a file based on FileInfo.Name and returns the file contents in bytes. returns an error if unable to read the file.
 func getFileContents(info *FileInfo) ([]byte, error) {
 	file, err := os.ReadFile(info.Name)
 	return file, err
 }
 
+// replaceFileContents takes in a files content in bytes along side FileInfo to replaces all or chosen amount of found words in a file.
 func replaceFileContents(content []byte, info *FileInfo) error {
+	// sliceSplitAndConvert closure to convert byte slice to string slice, trim whitespace and returns the slice.
+	sliceSplitAndConvert := func() []string {
+		// Split the string converted byte array with FileInfo.Seperator
+		stringedSlice := strings.Split(string(content), info.Seperator)
 
-	// Search closure to grab a stringed, trimmed content array
-	search := func() []string {
-
-		x := strings.Split(string(content), info.Seperator)
-
-		strings.Split(string(content), info.Seperator)
-
-		for i, single := range x {
-			x[i] = strings.TrimSpace(single)
+		// Trim all random spaces on words
+		for i, single := range stringedSlice {
+			stringedSlice[i] = strings.TrimSpace(single)
 		}
 
-		return x
+		// Return stringed slice
+		return stringedSlice
 	}()
 
 	// Error check to see if it's an empty file
-	if len(search) == 0 {
+	if len(sliceSplitAndConvert) == 0 {
 		return fmt.Errorf("%s is an empty file.", info.Name)
 	}
 
-	// Replacement list to switch changed words
-	replaceList := search
+	// Replacement list copied from the search list
+	replaceList := sliceSplitAndConvert
 
 	// Counter to count string changes in a file
 	var changeCounter int
 
 	// Loop over the stringed search array
-	for i, single := range search {
+	for i, single := range sliceSplitAndConvert {
 
 		// If the change counter meets the Count in fileinfo, then it breaks out of the loop
 		if info.Count != 0 {
@@ -87,52 +99,54 @@ func replaceFileContents(content []byte, info *FileInfo) error {
 			}
 		}
 
+		// grabPunc closure to locate any punctuation in a given word. if found, returns the substring and the cut suffix.
+		grabPunc := func() (subString string, suffix string) {
+			// All available punctuation
+			puncList := []string{
+				".", ",", ";", ":", "{", "[", "]", `}`,
+				"!", "@", "$", "%", "^", "&", "*",
+				"-", "--", "_", "__", "+", "=", "`", "~",
+			}
+
+			// Search the string to see if it has punctuation
+			for _, suffix := range puncList {
+				if subString, ok := strings.CutSuffix(single, suffix); ok {
+					return subString, suffix
+				}
+			}
+
+			return "", ""
+		}
+
+		// Shadow single and grab the suffix from the punc closure
+		single, suffix := grabPunc()
+
 		// If the target word is found, it is changed and the change counter is incremented
-		if info.TargetWord == single {
-			trimmedString := strings.Trim(info.Replacement, "")
-
-			punc := func(s string) string {
-				// All available punctuation
-				puncList := []string{
-					".", ",", ";", ":", "{", "[", "]", `}`,
-					"!", "@", "#", "$", "%", "^", "&", "*",
-					"-", "--", "_", "__", "+", "=", "`", "~",
-				}
-
-				// Search the string to see if it has punctuation
-				for _, suffix := range puncList {
-					if strings.HasSuffix(s, suffix) {
-						return suffix
-					}
-				}
-
-				return ""
-			}(trimmedString)
-
-			// Punctuation nil check
-			if punc != "" {
-				replaceList[i] = trimmedString + punc
+		if single == info.TargetWord {
+			if suffix != "" {
+				replaceList[i] = info.Replacement + suffix
 				changeCounter += 1
 				continue
 			}
 
 			// Replace word in array
-			replaceList[i] = trimmedString
+			replaceList[i] = info.Replacement
 			changeCounter += 1
 		}
 	}
 
 	// byteArray closure to convert the string array back into bytes
 	byteArray := func(stringArray []string) []byte {
+		// Join all array contents to single string
 		newString := strings.Join(stringArray, " ") + "\n"
 
+		// Convert and return the bytes from the string
 		bytes := []byte(newString)
-
 		return bytes
 	}(replaceList)
 
 	// Write the byteArray to the file to replace
-	if err := os.WriteFile(info.Name, byteArray, 0755); err != nil {
+	if err := os.WriteFile(info.Name, byteArray, 0o755); err != nil {
 		return fmt.Errorf("Unable to write to file %s due to error %w", info.Name, err)
 	}
 
@@ -154,7 +168,6 @@ func replaceAmountFlag() *argbin.Flag {
 	return &argbin.Flag{
 		TakesValue: true,
 		Execute: func(ctx *argbin.Context) error {
-
 			// Convert user input into a int
 			convert, err := strconv.Atoi(strings.TrimSpace(ctx.ParsedFlagValue))
 			if err != nil {
@@ -184,7 +197,6 @@ func ReplaceCommand() *argbin.Command {
 		Name:       "replace",
 		TakesValue: true,
 		Execute: func(ctx *argbin.Context) error {
-
 			// Init file info
 			info := &FileInfo{}
 
