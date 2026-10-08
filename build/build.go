@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
 	"swiss/utils"
 
 	"github.com/Tyy47/clibox/argbin"
@@ -93,15 +94,14 @@ var runMap = map[Language]run{
 // manualFindLanguage grabs all files in the current directory
 // and looks for a BuildFile to determine what language is being used and what needs to be ran or built.
 func manualFindLanguage(ctx *argbin.Context) (*program, error) {
-
 	// Grab all files in the current directory
 	files, err := os.ReadDir("./")
 	if err != nil {
 		return nil, err
 	}
-	
+
 	langs := &program{}
-	
+
 	// Loop over each file
 	for _, file := range files {
 		// If the file is a directory, then skip
@@ -114,7 +114,7 @@ func manualFindLanguage(ctx *argbin.Context) (*program, error) {
 			if file.Name() != v.BuildFile {
 				continue
 			}
-			
+
 			ctx.Values["language"] = k
 			langs.Build = &v
 		}
@@ -243,6 +243,15 @@ func listFlag() *argbin.Flag {
 	}
 }
 
+func showArgsFlag() *argbin.Flag {
+	return &argbin.Flag{
+		Execute: func(ctx *argbin.Context) error {
+			ctx.Values["show_args"] = true
+			return nil
+		},
+	}
+}
+
 // SwissInstall installs swiss for Linux users when ran inside of the cloned swiss repo.
 func SwissInstall() *argbin.Command {
 	return &argbin.Command{
@@ -291,7 +300,7 @@ func SwissInstall() *argbin.Command {
 // Command is added in main.go in main function.
 func BuildCommand() *argbin.Command {
 	return &argbin.Command{
-		Name:       "build",
+		Name: "build",
 		Execute: func(ctx *argbin.Context) error {
 			utils.Output.Info("searching for language.")
 
@@ -310,13 +319,20 @@ func BuildCommand() *argbin.Command {
 					return fmt.Errorf("swiss doesn't support this language.")
 				}
 				title = string(temp)
-				
+
 			} else {
 				b, err = getLanguage(ctx.ParsedValue)
 				if err != nil {
 					return err
 				}
 				title = ctx.ParsedValue
+			}
+
+			if show, exists := ctx.Values["show_args"].(bool); exists && show {
+				utils.Output.Infof("%s command args: %s.", title, strings.Join(b.Build.BuildArguments, ", "))
+				if cont := utils.ContinuePrompt(); !cont {
+					return utils.ErrExitingSwissGracefully
+				}
 			}
 
 			utils.Output.Info("building program.")
@@ -328,6 +344,8 @@ func BuildCommand() *argbin.Command {
 			return nil
 		},
 		Flags: argbin.Flags{
+			"-a":     showArgsFlag(),
+			"--args": showArgsFlag(),
 			"-h":     utils.HelpFlag(),
 			"--help": utils.HelpFlag(),
 			"-l":     listFlag(),
@@ -354,7 +372,7 @@ Flags:
 // Command is added in main.go in main function.
 func RunCommand() *argbin.Command {
 	return &argbin.Command{
-		Name:       "run",
+		Name: "run",
 		Execute: func(ctx *argbin.Context) error {
 			utils.Output.Info("searching for language.")
 			var r *program
@@ -381,6 +399,14 @@ func RunCommand() *argbin.Command {
 				title = ctx.ParsedValue
 			}
 
+
+			if show, exists := ctx.Values["show_args"].(bool); exists && show {
+				utils.Output.Infof("%s command args: %s.", title, strings.Join(r.Run.BuildArguments, ", "))
+				if cont := utils.ContinuePrompt(); !cont {
+					return utils.ErrExitingSwissGracefully
+				}
+			}
+
 			utils.Output.Info("running program.")
 			if err := runLanguage(r); err != nil {
 				return err
@@ -390,6 +416,8 @@ func RunCommand() *argbin.Command {
 			return nil
 		},
 		Flags: argbin.Flags{
+			"-a":     showArgsFlag(),
+			"--args": showArgsFlag(),
 			"-h":     utils.HelpFlag(),
 			"--help": utils.HelpFlag(),
 			"-l":     listFlag(),

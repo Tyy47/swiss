@@ -10,10 +10,14 @@ import (
 	"runtime"
 
 	"github.com/Tyy47/clibox/argbin"
+	"github.com/Tyy47/clibox/colorbin"
+	"github.com/Tyy47/clibox/inputbin"
 	"github.com/Tyy47/clibox/outbin"
 )
 
 var (
+	// Generic errors
+	ErrExitingSwissGracefully = errors.New("exiting...")
 
 	// util errors
 	ErrUnableToCreateFile = errors.New("unable to create file in current directory")
@@ -170,4 +174,24 @@ func ToggleOutputForCMD(cmd *exec.Cmd) {
 func OpenFile(file string) (*os.File, error) {
 	opened, err := os.Open(file)
 	return opened, err
+}
+
+// ContinuePrompt prompts the user with a continue? [y/n] message to either continue with 
+// command execution or exit the program.
+func ContinuePrompt() bool {
+	
+	// Create a set of input options from inputbin
+	ops := inputbin.InputOptions{
+		Question: "continue? [y/n]",
+		QuestionColor: &colorbin.ColorOptions{
+			ChosenColor: colorbin.ColorYellow,
+		},
+	}
+
+	// Create a confirmation prompt for the user by using inputbin and ops
+	if confirm := inputbin.Confirm(&ops, true); confirm {
+		return true
+	} else {
+		return false
+	}
 }
