@@ -80,7 +80,7 @@ var buildMap = map[Language]build{
 var runMap = map[Language]run{
 	Go: {
 		Tool:           "go",
-		BuildArguments: []string{"run", "main.go"},
+		BuildArguments: []string{"run", "."},
 		BuildFile:      "go.mod",
 	},
 
@@ -296,6 +296,50 @@ func SwissInstall() *argbin.Command {
 	}
 }
 
+// getLanguageName gathers the language name to build or run. 
+// *NOTE* Only used in BuildCommand & RunCommand
+func getProjectAndName(ctx argbin.Context) (*program, string, error) {
+	var proj *program
+	var title string
+	var err error
+
+	if ctx.ParsedValue == "" {
+		proj, err = manualFindLanguage(&ctx)
+		if err != nil {
+			return nil, "", err
+		}
+
+		temp, ok := ctx.Values["language"].(Language)
+		if !ok {
+			return nil, "", fmt.Errorf("swiss doesn't support this language.")
+		}
+		title = string(temp)
+
+	} else {
+		proj, err = getLanguage(ctx.ParsedValue)
+		if err != nil {
+			return nil, "", err
+		}
+		title = ctx.ParsedValue
+	}
+
+	return proj, title, nil
+}
+
+// showProjectArguments displays the arguments being ran for build and run depending on the command ran.
+func showProjectArguments(ctx argbin.Context, title string, args ...string) error {
+	if show, exists := ctx.Values["show_args"].(bool); exists && show {
+		utils.Output.Infof("%s command args: %s.", title, strings.Join(args, ", "))
+		if cont := utils.ContinuePrompt(); !cont {
+			return utils.ErrExitingSwissGracefully
+		}
+	}
+
+	return nil
+}
+
+
+
 // BuildCommand creates the "build" command for swiss.
 // Command is added in main.go in main function.
 func BuildCommand() *argbin.Command {
@@ -304,35 +348,13 @@ func BuildCommand() *argbin.Command {
 		Execute: func(ctx *argbin.Context) error {
 			utils.Output.Info("searching for language.")
 
-			var b *program
-			var err error
-			var title string
-
-			if ctx.ParsedValue == "" {
-				b, err = manualFindLanguage(ctx)
-				if err != nil {
-					return err
-				}
-
-				temp, ok := ctx.Values["language"].(Language)
-				if !ok {
-					return fmt.Errorf("swiss doesn't support this language.")
-				}
-				title = string(temp)
-
-			} else {
-				b, err = getLanguage(ctx.ParsedValue)
-				if err != nil {
-					return err
-				}
-				title = ctx.ParsedValue
+			b, title, err := getProjectAndName(*ctx)
+			if err != nil {
+				return err
 			}
 
-			if show, exists := ctx.Values["show_args"].(bool); exists && show {
-				utils.Output.Infof("%s command args: %s.", title, strings.Join(b.Build.BuildArguments, ", "))
-				if cont := utils.ContinuePrompt(); !cont {
-					return utils.ErrExitingSwissGracefully
-				}
+			if err := showProjectArguments(*ctx, title, b.Build.BuildArguments...); err != nil {
+				return err
 			}
 
 			utils.Output.Info("building program.")
@@ -376,37 +398,16 @@ func RunCommand() *argbin.Command {
 		Name: "run",
 		Execute: func(ctx *argbin.Context) error {
 			utils.Output.Info("searching for language.")
-			var r *program
-			var err error
-			var title string
 
-			if ctx.ParsedValue == "" {
-				r, err = manualFindLanguage(ctx)
-				if err != nil {
-					return err
-				}
-
-				temp, ok := ctx.Values["language"].(Language)
-				if !ok {
-					return fmt.Errorf("swiss doesn't support this language.")
-				}
-				title = string(temp)
-
-			} else {
-				r, err = getLanguage(ctx.ParsedValue)
-				if err != nil {
-					return err
-				}
-				title = ctx.ParsedValue
+			r, title, err := getProjectAndName(*ctx)
+			if err != nil {
+				return err
 			}
 
-
-			if show, exists := ctx.Values["show_args"].(bool); exists && show {
-				utils.Output.Infof("%s command args: %s.", title, strings.Join(r.Run.BuildArguments, ", "))
-				if cont := utils.ContinuePrompt(); !cont {
-					return utils.ErrExitingSwissGracefully
-				}
+			if err := showProjectArguments(*ctx, title, r.Run.BuildArguments...); err != nil {
+				return err
 			}
+
 
 			utils.Output.Info("running program.")
 			if err := runLanguage(r); err != nil {

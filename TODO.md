@@ -9,7 +9,8 @@
 
 ## Build & Run:
 - add args flag to see what arguments are being passed into the build tool 
-- refine down build and run command execution
+- refine down build and run command execution 
+- add code documentation to build and run command functions
 
 ## Init:
 - add "make" init option
