@@ -6,6 +6,7 @@
 - fmt: format text or code files using their respective tools.
 - fs: opens a file server in current directory.
 - shorthand run & build: 
+- replace 
 
 ## Build & Run:
 - add args flag to see what arguments are being passed into the build tool 

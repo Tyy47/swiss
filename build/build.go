@@ -400,6 +400,7 @@ Build & Run module - Builds or Runs a program based on the language provided.
 Commands:
 	build <string>: Builds a program based on the language you input.
 	run <string>: Runs a program based on the language you input.
+
 Flags:
 	-h --help: Opens the help menu.
 	-l --list: Prints a list of available languages to build and run with their respective build tools available in swiss.
