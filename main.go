@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"swiss/build"
+	"swiss/fileserver"
 	"swiss/gen"
 	"swiss/initialize"
 	"swiss/replace"
@@ -82,6 +83,7 @@ func main() {
 		initialize.InitCommand(),
 		shortcuts.ShortcutCommand(),
 		replace.ReplaceCommand(),
+		fileserver.FileServerCommand(),
 	}
 
 	// Adds all commands to app

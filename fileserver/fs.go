@@ -2,55 +2,63 @@ package fileserver
 
 import (
 	"net/http"
-	"strconv"
+	"os"
+
+	"swiss/utils"
 
 	"github.com/Tyy47/clibox/argbin"
 )
 
-
-
 func setPortFlag() *argbin.Flag {
 	return &argbin.Flag{
+		TakesValue: true,
 		Execute: func(ctx *argbin.Context) error {
-			// Gather the port and convert to int
-			port, err := strconv.Atoi(ctx.ParsedFlagValue)
-			if err != nil {
-				return err
-			}
-
 			// Add port to context
-			ctx.Values["port"] = port
+			ctx.Values["port"] = ctx.ParsedFlagValue
 
 			return nil
 		},
-
 	}
 }
 
 func FileServerCommand() *argbin.Command {
 	return &argbin.Command{
-		Name: "fileserver",
+		Name:            "fileserver",
 		AdditionalNames: []string{"fs"},
 		Execute: func(ctx *argbin.Context) error {
 			// Default port if one isn't provided
-			const defaultPort int = 3030
+			const defaultPort string = "3030"
 
 			// Host port
-			var port int
-			
+			var port string
+
 			// Assign port to gathered input
-			if gatheredPort, exists := ctx.Values["port"].(int); exists {
+			if gatheredPort, exists := ctx.Values["port"].(string); exists {
 				port = gatheredPort
 			} else {
 				port = defaultPort
 			}
 
+			// Get current working directory
+			dir, err := os.Getwd()
+			if err != nil {
+				return err
+			}
 
+			server := http.FileServer(http.Dir(dir))
+
+			http.Handle(dir, server)
+
+			utils.Output.Infof("starting fileserver on port %s", port)
+
+			if err := http.ListenAndServe(":" + port, nil); err != nil {
+				return err
+			}
 
 			return nil
 		},
 		Flags: argbin.Flags{
-			"-p": setPortFlag(),
+			"-p":     setPortFlag(),
 			"--port": setPortFlag(),
 		},
 	}
