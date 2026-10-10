@@ -32,7 +32,10 @@ func FileServerCommand() *argbin.Command {
 		Name: "fileserver",
 		AdditionalNames: []string{"fs"},
 		Execute: func(ctx *argbin.Context) error {
+			// Default port if one isn't provided
 			const defaultPort int = 3030
+
+			// Host port
 			var port int
 			
 			// Assign port to gathered input
@@ -49,7 +52,6 @@ func FileServerCommand() *argbin.Command {
 		Flags: argbin.Flags{
 			"-p": setPortFlag(),
 			"--port": setPortFlag(),
-
 		},
 	}
 }
