@@ -243,6 +243,8 @@ func listFlag() *argbin.Flag {
 	}
 }
 
+// showArgsFlag toggles a value to show the arguments that are going to be ran
+// when a program is built or ran via swiss.
 func showArgsFlag() *argbin.Flag {
 	return &argbin.Flag{
 		Execute: func(ctx *argbin.Context) error {
@@ -349,8 +351,6 @@ func showProjectArguments(ctx argbin.Context, title string, args ...string) erro
 
 	return nil
 }
-
-
 
 // BuildCommand creates the "build" command for swiss.
 // Command is added in main.go in main function.
