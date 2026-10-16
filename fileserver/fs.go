@@ -31,17 +31,12 @@ func FileServerCommand() *argbin.Command {
 		Name:            "fileserver",
 		AdditionalNames: []string{"fs"},
 		Execute: func(cmdCtx *argbin.CommandContext) error {
-			// Default port if one isn't provided
-			const defaultPort string = "3030"
-
 			// Host port
-			var port string
+			var port string = "3030"
 
 			// Assign port to gathered input
 			if gatheredPort, exists := cmdCtx.Values["port"].(string); exists {
 				port = gatheredPort
-			} else {
-				port = defaultPort
 			}
 
 			// Get current working directory
@@ -82,10 +77,12 @@ func FileServerCommand() *argbin.Command {
 				// Sleep for 1 seconds to have confirmation prompt
 				// be the last print
 				time.Sleep(1 * time.Second)
-
-				// Present prompt
-				if inputbin.Confirm(&input, true) {
-					cancel()
+				for {
+					// Present prompt
+					if inputbin.Confirm(&input, true) {
+						cancel()
+						break
+					}
 				}
 			}()
 

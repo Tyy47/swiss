@@ -88,25 +88,26 @@ func main() {
 
 	// Adds all commands to app
 	if err := root.AddCommand(commands...); err != nil {
-		// Panic for potential programmer errors
+		// Panic for potential implementation errors
 		panic(err)
 	}
 
 	// Starts the project using argbin
 	if err := root.Run(); err != nil {
+
 		// Shows help menu if arguments are missing from swiss
 		if errors.Is(err, argbin.ErrMissingArguments) {
 			fmt.Println(root.HelpMenu)
 			return
 		}
 
-		// Checks if swiss was exited gracefully, unwraps error to string to print it as a note 
+		// Checks if swiss was exited gracefully, unwraps error to string to print it as a note
 		// instead of an error.
 		if errors.Is(err, utils.ErrExitingSwissGracefully) {
 			utils.Output.Info(err.Error())
 			return
 		}
-		
+
 		// Prints if no specific errors are specified
 		utils.Output.Error(err)
 	}
