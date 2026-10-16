@@ -19,4 +19,9 @@
 ## Replace:
 - build help menu 
 
+## Misc:
+- rework dependencies
+- rewrite readme
+- rewrite docs
+
 ### Bugs:
