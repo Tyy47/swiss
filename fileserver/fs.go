@@ -81,6 +81,7 @@ func FileServerCommand() *argbin.Command {
 					// Present prompt
 					if inputbin.Confirm(&input, true) {
 						cancel()
+						utils.Output.Infof("closing fileserver on port %s", port)
 						break
 					}
 				}
