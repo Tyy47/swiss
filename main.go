@@ -19,7 +19,7 @@ import (
 // Creating the root object of the application
 var root = argbin.Root{
 	AppName:     "swiss",
-	AppVersion:  "1.2",
+	AppVersion:  "0.1.2",
 	CommandList: make([]*argbin.Command, 0),
 	HelpMenu: `
 ╭───────────────────  Swiss  ────────────────────╮
