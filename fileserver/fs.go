@@ -49,14 +49,14 @@ func FileServerCommand() *argbin.Command {
 			if err != nil {
 				return err
 			}
-			
+
 			// Create context for http server
 			serverCtx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
 			// Create server object
 			serve := &http.Server{
-				Addr: ":" + port,
+				Addr:    ":" + port,
 				Handler: http.FileServer(http.Dir(dir)),
 			}
 
@@ -78,7 +78,7 @@ func FileServerCommand() *argbin.Command {
 						ChosenColor: colorbin.ColorYellow,
 					},
 				}
-				
+
 				// Sleep for 1 seconds to have confirmation prompt
 				// be the last print
 				time.Sleep(1 * time.Second)
@@ -91,29 +91,29 @@ func FileServerCommand() *argbin.Command {
 
 			// Server shutdown process
 			select {
-				// Check if the context has finished
-				case <-serverCtx.Done():
-					// Grab shutdown context
-					shutdownCtx, stop := context.WithTimeout(context.Background(), 5*time.Second)
-					defer stop()
+			// Check if the context has finished
+			case <-serverCtx.Done():
+				// Grab shutdown context
+				shutdownCtx, stop := context.WithTimeout(context.Background(), 5*time.Second)
+				defer stop()
 
-					// Attempt to shutdown server with given context
-					if err := serve.Shutdown(shutdownCtx); err != nil {
-						return err
-					}
-
-					// Returns a received error if it isn't the
-					// http server being closed
-					if err := <-errorChan; err != nil && !errors.Is(err, http.ErrServerClosed) {
-						return err
-					}
+				// Attempt to shutdown server with given context
+				if err := serve.Shutdown(shutdownCtx); err != nil {
+					return err
+				}
 
 				// Returns a received error if it isn't the
 				// http server being closed
-				case err := <-errorChan:
-					if err != nil && !errors.Is(err, http.ErrServerClosed) {
-						return err
-					}
+				if err := <-errorChan; err != nil && !errors.Is(err, http.ErrServerClosed) {
+					return err
+				}
+
+			// Returns a received error if it isn't the
+			// http server being closed
+			case err := <-errorChan:
+				if err != nil && !errors.Is(err, http.ErrServerClosed) {
+					return err
+				}
 			}
 
 			return nil
