@@ -155,7 +155,7 @@ func DoesToolExist(tool string) error {
 // helpFlag creates a generic flag for a command to print out the commands help menu.
 func HelpFlag() *argbin.Flag {
 	return &argbin.Flag{
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(ctx *argbin.CommandContext) error {
 			help := ctx.Command.HelpMenu
 			fmt.Println(help)
 			return nil

@@ -95,7 +95,7 @@ func gitCommitCommand() *argbin.Command {
 		Name:       "commit",
 		HelpMenu:   "commit shortcut",
 		TakesValue: true,
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(cmdCtx *argbin.CommandContext) error {
 
 			// Runs git add command
 			if err := gitAdd(); err != nil {
@@ -103,7 +103,7 @@ func gitCommitCommand() *argbin.Command {
 			}
 
 			// Run commit command
-			if err := gitCommit(ctx.ParsedValue); err != nil {
+			if err := gitCommit(cmdCtx.ParsedValue); err != nil {
 				return err
 			}
 
@@ -121,7 +121,7 @@ func gitPushCommand() *argbin.Command {
 		Name:       "push",
 		HelpMenu:   "push shortcut",
 		TakesValue: true,
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(cmdCtx *argbin.CommandContext) error {
 
 			// Runs the git add command
 			if err := gitAdd(); err != nil {
@@ -131,7 +131,7 @@ func gitPushCommand() *argbin.Command {
 			utils.Output.Success("Added files to commit.")
 
 			// Runs git commit -m ctx.ParsedValue
-			if err := gitCommit(ctx.ParsedValue); err != nil {
+			if err := gitCommit(cmdCtx.ParsedValue); err != nil {
 				return err
 			}
 
@@ -154,7 +154,7 @@ func gitSyncCommand() *argbin.Command {
 	return &argbin.Command{
 		Name:     "sync",
 		HelpMenu: "sync shortcut",
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(cmdCtx *argbin.CommandContext) error {
 
 			// Runs git fetch & git status
 			if err := gitSync(); err != nil {
@@ -163,7 +163,7 @@ func gitSyncCommand() *argbin.Command {
 
 			// Checks if pull is toggled on,
 			// If so, it will pull the changes from the remote repo
-			pull, _ := ctx.Values["pull"].(bool)
+			pull, _ := cmdCtx.Values["pull"].(bool)
 			if pull {
 				if err := gitPull(); err != nil {
 					return err
@@ -175,14 +175,14 @@ func gitSyncCommand() *argbin.Command {
 		},
 		Flags: argbin.Flags{
 			"-p": {
-				Execute: func(ctx *argbin.Context) error {
-					ctx.Values["pull"] = true
+				Execute: func(cmdCtx *argbin.CommandContext) error {
+					cmdCtx.Values["pull"] = true
 					return nil
 				},
 			},
 			"--pull": {
-				Execute: func(ctx *argbin.Context) error {
-					ctx.Values["pull"] = true
+				Execute: func(cmdCtx *argbin.CommandContext) error {
+					cmdCtx.Values["pull"] = true
 					return nil
 				},
 			},

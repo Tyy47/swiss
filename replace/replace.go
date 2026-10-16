@@ -30,7 +30,7 @@ type FileInfo struct {
 }
 
 // AssignValues builds all needed FileInfo members and returns an error if any value cannot be retrieved.
-func (fi *FileInfo) AssignValues(ctx *argbin.Context) error {
+func (fi *FileInfo) AssignValues(ctx *argbin.CommandContext) error {
 	// Grab file name from command context
 	name, ok := ctx.Values["file_name"].(string)
 	if !ok {
@@ -158,7 +158,7 @@ func replaceFileContents(content []byte, info *FileInfo) error {
 func findStringFlag() *argbin.Flag {
 	return &argbin.Flag{
 		TakesValue: true,
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(ctx *argbin.CommandContext) error {
 			// Assign parsed flag value to command context
 			ctx.Values["with"] = ctx.ParsedFlagValue
 			return nil
@@ -169,15 +169,15 @@ func findStringFlag() *argbin.Flag {
 func replaceAmountFlag() *argbin.Flag {
 	return &argbin.Flag{
 		TakesValue: true,
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(cmdCtx *argbin.CommandContext) error {
 			// Convert user input into a int
-			convert, err := strconv.Atoi(strings.TrimSpace(ctx.ParsedFlagValue))
+			convert, err := strconv.Atoi(strings.TrimSpace(cmdCtx.ParsedFlagValue))
 			if err != nil {
-				return fmt.Errorf("unable to convert %s to an int", ctx.ParsedValue)
+				return fmt.Errorf("unable to convert %s to an int", cmdCtx.ParsedValue)
 			}
 
 			// Add amount value to command context
-			ctx.Values["amount"] = convert
+			cmdCtx.Values["amount"] = convert
 			return nil
 		},
 	}
@@ -186,7 +186,7 @@ func replaceAmountFlag() *argbin.Flag {
 func getFileNameFlag() *argbin.Flag {
 	return &argbin.Flag{
 		TakesValue: true,
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(ctx *argbin.CommandContext) error {
 			// Grab file name value
 			ctx.Values["file_name"] = ctx.ParsedFlagValue
 			return nil
@@ -199,12 +199,12 @@ func ReplaceCommand() *argbin.Command {
 	return &argbin.Command{
 		Name:       "replace",
 		TakesValue: true,
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(cmdCtx *argbin.CommandContext) error {
 			// Init file info
 			info := &FileInfo{}
 
 			// Assign values to info
-			if err := info.AssignValues(ctx); err != nil {
+			if err := info.AssignValues(cmdCtx); err != nil {
 				return err
 			}
 

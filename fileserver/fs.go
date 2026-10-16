@@ -17,9 +17,9 @@ import (
 func setPortFlag() *argbin.Flag {
 	return &argbin.Flag{
 		TakesValue: true,
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(cmdCtx *argbin.CommandContext) error {
 			// Add port to context
-			ctx.Values["port"] = ctx.ParsedFlagValue
+			cmdCtx.Values["port"] = cmdCtx.ParsedFlagValue
 
 			return nil
 		},
@@ -30,7 +30,7 @@ func FileServerCommand() *argbin.Command {
 	return &argbin.Command{
 		Name:            "fileserver",
 		AdditionalNames: []string{"fs"},
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(cmdCtx *argbin.CommandContext) error {
 			// Default port if one isn't provided
 			const defaultPort string = "3030"
 
@@ -38,7 +38,7 @@ func FileServerCommand() *argbin.Command {
 			var port string
 
 			// Assign port to gathered input
-			if gatheredPort, exists := ctx.Values["port"].(string); exists {
+			if gatheredPort, exists := cmdCtx.Values["port"].(string); exists {
 				port = gatheredPort
 			} else {
 				port = defaultPort

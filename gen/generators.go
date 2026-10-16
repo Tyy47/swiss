@@ -39,8 +39,8 @@ func generateSecretCommand() *argbin.Command {
 		Name:       "secret",
 		HelpMenu:   "secret code generator.",
 		TakesValue: true,
-		Execute: func(ctx *argbin.Context) error {
-			var secretLength string = ctx.ParsedValue
+		Execute: func(cmdCtx *argbin.CommandContext) error {
+			var secretLength string = cmdCtx.ParsedValue
 
 			intLength, err := strconv.Atoi(secretLength)
 			if err != nil {
@@ -64,7 +64,7 @@ func generateUUIDCommand() *argbin.Command {
 	return &argbin.Command{
 		Name:     "uuid",
 		HelpMenu: "uuid generator for swiss",
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(ctx *argbin.CommandContext) error {
 			var builder strings.Builder
 			builder.Grow(36)
 			for i := 0; i < 32; i++ {

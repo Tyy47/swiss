@@ -93,7 +93,7 @@ var runMap = map[Language]run{
 
 // manualFindLanguage grabs all files in the current directory
 // and looks for a BuildFile to determine what language is being used and what needs to be ran or built.
-func manualFindLanguage(ctx *argbin.Context) (*program, error) {
+func manualFindLanguage(ctx *argbin.CommandContext) (*program, error) {
 	// Grab all files in the current directory
 	files, err := os.ReadDir("./")
 	if err != nil {
@@ -229,7 +229,7 @@ func runLanguage(p *program) error {
 // that swiss can build and run.
 func listFlag() *argbin.Flag {
 	return &argbin.Flag{
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(ctx *argbin.CommandContext) error {
 			fmt.Println("Buildable and runable languages:")
 
 			// Loop over build map and print entries
@@ -247,7 +247,7 @@ func listFlag() *argbin.Flag {
 // when a program is built or ran via swiss.
 func showArgsFlag() *argbin.Flag {
 	return &argbin.Flag{
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(ctx *argbin.CommandContext) error {
 			ctx.Values["show_args"] = true
 			return nil
 		},
@@ -258,7 +258,7 @@ func showArgsFlag() *argbin.Flag {
 func SwissInstall() *argbin.Command {
 	return &argbin.Command{
 		Name: "install",
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(ctx *argbin.CommandContext) error {
 			// Check if the user is running linux
 			if utils.GetOperatingSystem() != "linux" {
 				utils.Output.Warning("unable to install swiss. unsupported operating system")
@@ -300,7 +300,7 @@ func SwissInstall() *argbin.Command {
 
 // getLanguageName gathers the language name to build or run. 
 // *NOTE* Only used in BuildCommand & RunCommand
-func getProjectAndName(ctx argbin.Context) (*program, string, error) {
+func getProjectAndName(ctx argbin.CommandContext) (*program, string, error) {
 	// Create storage variables for return
 	var proj *program
 	var title string
@@ -335,7 +335,7 @@ func getProjectAndName(ctx argbin.Context) (*program, string, error) {
 }
 
 // showProjectArguments displays the arguments being ran for build and run depending on the command ran.
-func showProjectArguments(ctx argbin.Context, title string, args ...string) error {
+func showProjectArguments(ctx argbin.CommandContext, title string, args ...string) error {
 	// Checks if the show args flag is toggled and in the map
 	if show, exists := ctx.Values["show_args"].(bool); exists && show {
 
@@ -357,7 +357,7 @@ func showProjectArguments(ctx argbin.Context, title string, args ...string) erro
 func BuildCommand() *argbin.Command {
 	return &argbin.Command{
 		Name: "build",
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(ctx *argbin.CommandContext) error {
 			utils.Output.Info("searching for language.")
 
 			// Grab the project, language name, and potential error
@@ -413,17 +413,17 @@ Flags:
 func RunCommand() *argbin.Command {
 	return &argbin.Command{
 		Name: "run",
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(cmdCtx *argbin.CommandContext) error {
 			utils.Output.Info("searching for language.")
 
 			// Grab the project, language name, and potential error
-			r, title, err := getProjectAndName(*ctx)
+			r, title, err := getProjectAndName(*cmdCtx)
 			if err != nil {
 				return err
 			}
 
 			// Shows project arguments if args flag is toggled on
-			if err := showProjectArguments(*ctx, title, r.Run.BuildArguments...); err != nil {
+			if err := showProjectArguments(*cmdCtx, title, r.Run.BuildArguments...); err != nil {
 				return err
 			}
 

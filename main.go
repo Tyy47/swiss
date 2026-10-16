@@ -48,7 +48,7 @@ func helpCommand() *argbin.Command {
 	return &argbin.Command{
 		Name:            "help",
 		AdditionalNames: []string{"--help", "-h"},
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(ctx *argbin.CommandContext) error {
 			fmt.Println(root.HelpMenu)
 			return nil
 		},
@@ -60,7 +60,7 @@ func versionCommand() *argbin.Command {
 	return &argbin.Command{
 		Name:            "version",
 		AdditionalNames: []string{"--version", "-v"},
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(ctx *argbin.CommandContext) error {
 			// Color app version to green
 			version := colorbin.Green(root.AppVersion).ToHighIntensityBold().String()
 

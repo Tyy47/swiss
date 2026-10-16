@@ -156,14 +156,14 @@ func InitCommand() *argbin.Command {
 	return &argbin.Command{
 		Name:       "init",
 		TakesValue: true,
-		Execute: func(ctx *argbin.Context) error {
+		Execute: func(cmdCtx *argbin.CommandContext) error {
 			// Toggle for silent output
-			silent, _ := ctx.Values["silent"].(bool)
+			silent, _ := cmdCtx.Values["silent"].(bool)
 
-			utils.Output.Infof("initializing %s project", ctx.ParsedValue)
+			utils.Output.Infof("initializing %s project", cmdCtx.ParsedValue)
 
 			// Finds the project
-			proj, err := initialize(ctx.ParsedValue)
+			proj, err := initialize(cmdCtx.ParsedValue)
 			if err != nil {
 				return err
 			}
@@ -185,27 +185,27 @@ func InitCommand() *argbin.Command {
 			}
 			
 			// Displays success message if silent isnt toggled
-			if !silent { output.Successf("%s project has been created.", ctx.ParsedValue) }
+			if !silent { output.Successf("%s project has been created.", cmdCtx.ParsedValue) }
 			return nil
 		},
 		Flags: argbin.Flags{
 			"-h":     utils.HelpFlag(),
 			"--help": utils.HelpFlag(),
 			"--silent": {
-				Execute: func(ctx *argbin.Context) error {
-					ctx.Values["silent"] = true
+				Execute: func(cmdCtx *argbin.CommandContext) error {
+					cmdCtx.Values["silent"] = true
 					return nil
 				},
 			},
 			"-s": {
-				Execute: func(ctx *argbin.Context) error {
-					ctx.Values["silent"] = true
+				Execute: func(cmdCtx *argbin.CommandContext) error {
+					cmdCtx.Values["silent"] = true
 					return nil
 				},
 			},
 			"-g": {
-				Execute: func(ctx *argbin.Context) error {
-					silent, _ := ctx.Values["silent"].(bool)
+				Execute: func(cmdCtx *argbin.CommandContext) error {
+					silent, _ := cmdCtx.Values["silent"].(bool)
 
 					if err := gitInit(); err != nil {
 						output.Error("unable to init git")
@@ -220,8 +220,8 @@ func InitCommand() *argbin.Command {
 				},
 			},
 			"--git": {
-				Execute: func(ctx *argbin.Context) error {
-					silent, _ := ctx.Values["silent"].(bool)
+				Execute: func(cmdCtx *argbin.CommandContext) error {
+					silent, _ := cmdCtx.Values["silent"].(bool)
 
 					if err := gitInit(); err != nil {
 						output.Error("unable to init git")
@@ -236,8 +236,8 @@ func InitCommand() *argbin.Command {
 				},
 			},
 			"-j": {
-				Execute: func(ctx *argbin.Context) error {
-					silent, _ := ctx.Values["silent"].(bool)
+				Execute: func(cmdCtx *argbin.CommandContext) error {
+					silent, _ := cmdCtx.Values["silent"].(bool)
 
 					if err := jjInit(); err != nil {
 						output.Error("unable to init jujutsu")
@@ -252,8 +252,8 @@ func InitCommand() *argbin.Command {
 				},
 			},
 			"--jujutsu": {
-				Execute: func(ctx *argbin.Context) error {
-					silent, _ := ctx.Values["silent"].(bool)
+				Execute: func(cmdCtx *argbin.CommandContext) error {
+					silent, _ := cmdCtx.Values["silent"].(bool)
 
 					if err := jjInit(); err != nil {
 						output.Error("unable to init jujutsu")
@@ -268,7 +268,7 @@ func InitCommand() *argbin.Command {
 				},
 			},
 			"-e": {
-				Execute: func(ctx *argbin.Context) error {
+				Execute: func(cmdCtx *argbin.CommandContext) error {
 					files := []string{"TODO.md", "README.md"}
 
 					if err := utils.MakeFile(files...); err != nil {
@@ -279,7 +279,7 @@ func InitCommand() *argbin.Command {
 				},
 			},
 			"--extras": {
-				Execute: func(ctx *argbin.Context) error {
+				Execute: func(cmdCtx *argbin.CommandContext) error {
 					files := []string{"TODO.md", "README.md"}
 
 					if err := utils.MakeFile(files...); err != nil {
