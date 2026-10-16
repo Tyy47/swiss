@@ -171,6 +171,7 @@ func ToggleOutputForCMD(cmd *exec.Cmd) {
 }
 
 // OpenFile opens a file based on the string given as the file name. Returns the opened file and an error.
+// *NOTE* File isn't defered closed, file must be closed manually
 func OpenFile(file string) (*os.File, error) {
 	opened, err := os.Open(file)
 	return opened, err
