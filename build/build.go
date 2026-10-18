@@ -16,8 +16,6 @@ var (
 
 	// generic errors
 
-	ErrUnknownLanguage = errors.New("unknown language")
-
 	// build object errors
 
 	ErrNilLang      = errors.New("lang argument cannot be nil")
@@ -39,6 +37,7 @@ type Language string
 const (
 	Go   Language = "go"
 	Rust Language = "rust"
+	Test Language = "test"
 )
 
 // build stores all the needed information to build a program
@@ -133,7 +132,6 @@ func manualFindLanguage(ctx *argbin.CommandContext) (*program, error) {
 }
 
 // getLanguage takes a language input and returns a build object thats related to that language.
-// If no languages are found, ErrUnknownLanguage is returned.
 func getLanguage(lang string) (*program, error) {
 	// Nil check for lang
 	if lang == "" {
@@ -146,13 +144,13 @@ func getLanguage(lang string) (*program, error) {
 	// Gather the build object
 	buildObject, ok := buildMap[Language(fixed)]
 	if !ok {
-		return nil, ErrUnknownLanguage
+		return nil, fmt.Errorf("swiss doesn't support %s.", fixed)
 	}
 
 	// Gather the run object
 	runObject, ok := runMap[Language(fixed)]
 	if !ok {
-		return nil, ErrUnknownLanguage
+		return nil, fmt.Errorf("swiss doesn't support %s.", fixed)
 	}
 
 	// Create a program and assign the build and run objects to store for context
@@ -179,6 +177,11 @@ func buildLanguage(p *program) error {
 
 	// Assigning build to b
 	b := p.Build
+
+	// Checks if the given build tool exists
+	if err := utils.DoesToolExist(b.Tool); err != nil {
+		return err
+	}
 
 	// Takes in the tool and arguments to create a command
 	cmd := exec.Command(b.Tool, b.BuildArguments...)
@@ -210,6 +213,11 @@ func runLanguage(p *program) error {
 
 	// Assigning run to r
 	r := p.Run
+
+	// Checks if the given build tool exists
+	if err := utils.DoesToolExist(r.Tool); err != nil {
+		return err
+	}
 
 	// Takes in the tool and arguments to create a command
 	cmd := exec.Command(r.Tool, r.BuildArguments...)
@@ -317,7 +325,7 @@ func getProjectAndName(ctx argbin.CommandContext) (*program, string, error) {
 		// Grabs the language name
 		temp, ok := ctx.Values["language"].(Language)
 		if !ok {
-			return nil, "", fmt.Errorf("swiss doesn't support this language.")
+			return nil, "", fmt.Errorf("swiss doesn't support %s.", temp)
 		}
 		// Cast the language type to string
 		title = string(temp)
@@ -357,6 +365,7 @@ func showProjectArguments(ctx argbin.CommandContext, title string, args ...strin
 func BuildCommand() *argbin.Command {
 	return &argbin.Command{
 		Name: "build",
+		TakesValue: true,
 		Execute: func(ctx *argbin.CommandContext) error {
 			utils.Output.Info("searching for language.")
 
@@ -413,6 +422,7 @@ Flags:
 func RunCommand() *argbin.Command {
 	return &argbin.Command{
 		Name: "run",
+		TakesValue: true,
 		Execute: func(cmdCtx *argbin.CommandContext) error {
 			utils.Output.Info("searching for language.")
 
@@ -426,7 +436,6 @@ func RunCommand() *argbin.Command {
 			if err := showProjectArguments(*cmdCtx, title, r.Run.BuildArguments...); err != nil {
 				return err
 			}
-
 
 			// Builds the language via the project run arguments
 			utils.Output.Info("running program.")

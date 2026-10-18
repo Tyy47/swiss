@@ -140,12 +140,14 @@ func MoveFileToFolder(oldPath string, newPath string) error {
 	return nil
 }
 
-// DoesToolExist takes in a string that is a tool and checks the version silently to check if it's installed.
-// Will return an error stating the tool is not installed.
-func DoesToolExist(tool string) error {
-	command := exec.Command(tool, "-v")
+// DoesToolExist takes in a tool as a string and searches the system for this tool. Checks include local scripts and apps alongside PATH'd directories.
+// Returns an error if the given tool doesn't exist.
+func DoesToolExist(tool string) (ErrTooNotInstalled error) {
+	// Checks paths with the given tool
+	_, err := exec.LookPath(tool)
 
-	if err := command.Run(); err != nil {
+	// Checks if the path function returned an error
+	if err != nil {
 		return fmt.Errorf("%s %w.", tool, ErrToolNotInstalled)
 	}
 

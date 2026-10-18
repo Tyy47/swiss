@@ -9,6 +9,8 @@
 - replace 
 
 ## Build & Run:
+- rewrite command flow, account for more missing cases of commands, languages, etc.
+
 - add args flag to see what arguments are being passed into the build tool 
 - refine down build and run command execution 
 - add code documentation to build and run command functions 
@@ -25,3 +27,4 @@
 - rewrite docs
 
 ### Bugs:
+

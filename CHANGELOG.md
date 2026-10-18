@@ -1,9 +1,13 @@
-# Swiss 1.2
+# Swiss 0.1.2
 
-## New Mod
-- Added replace; replace does a search of a word in a file and replaces it with a second given word.
-- Added fileserver; runs a fileserver in the current working directory.
+## New Modules
 
-### Improvements:
-- Ported over arg parser and other functionality to clibox
-- Rewrote every module
+### Replace
+replace does a global search of a file and replaces a targeted word and replaces it with the one given to the command.
+
+### File-server
+file-server or fs hosts a local file server in your current working directory.
+
+### Misc Improvements:
+- Ported over arg parser and other functionality to clibox.
+- Rewrote every module to be more scalable for future additions.
