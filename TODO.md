@@ -18,6 +18,9 @@
 ## Init:
 - add "make" init option
 
+### Git:
+- add automated git branch creation. "git add .; git commit -m "first commit"; git branch -M main; (set upstream url); prompt user to push with git push -u origin main;
+
 ## Replace:
 - build help menu 
 
