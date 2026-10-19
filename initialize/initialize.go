@@ -24,7 +24,8 @@ Go - Go: swiss init go
 C - Swiss: swiss init c
 Zig - Zig: swiss init zig
 Python - uv: swiss init python
-Typescript - bun: swiss init ts`
+Typescript - bun: swiss init ts
+Typst: swiss init typ`
 
 var output = outbin.NewOutput(os.Stdout, os.Stderr)
 

@@ -9,6 +9,7 @@ const (
 	Zig        Language = "zig"
 	Python     Language = "python"
 	Typescript Language = "ts"
+	Typst      Language = "typ"
 )
 
 var initMap = map[Language]project{
@@ -44,5 +45,10 @@ var initMap = map[Language]project{
 	Typescript: {
 		Tool:      "bun",
 		Arguments: []string{"init", "--yes"},
+	},
+
+	Typst: {
+		ManualInit: true,
+		Files: []string{"main.typ"},
 	},
 }
